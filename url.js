@@ -13,5 +13,5 @@ module.exports = (hh_token) => ({
     config.domain + '/api/android-'
       + hh_token + '/quicksearch/'
       + normilizePostcode(postcode)
-      + '/All/0-5/?q=' + term
+      + '/All/0-8/?q=' + term
 })

@@ -23,21 +23,9 @@ const filterType = type =>
 const filterSponsored = rest =>
   !rest.children.filter(filterType('sponsor')).shift()
 
-function parseXml(xml) {
+function getOneRest(xml) {
   try {
-    const rest = parser(xml).root
-      .children[1] // result
-      .children[3] // restaurants
-      .children
-      .filter(filterSponsored) // filter sponsored
-      .pop() // take first restaurant
-
-    if (!rest) {
-      // no rest found
-      log('no rest found')
-      return false
-    }
-
+    const rest = getRests(xml).pop() // take first restaurant
     const attr = rest.children.filter(filterType('name')).pop()
 
     log('find rest: ', attr.content || '[empty value]')
@@ -48,12 +36,50 @@ function parseXml(xml) {
   }
 }
 
-module.exports.loadXml = (url, done) => {
+function getRestList(xml) {
+  const flatData = list => list.reduce((acc = {}, attr) =>
+    (acc[attr.attributes.type] = attr.content, acc))
+
+  const merger = (a, b) => Object.keys(a)
+    .reduce((acc, key) => (b[key] = a[key], b), b)
+
+  return getRests(xml)
+    .map(rest => merger(rest.attributes, flatData(rest.children)))
+}
+
+function getRests(xml) {
+  try {
+    const rests = parser(xml).root
+      .children[1] // result
+      .children[3] // restaurants
+      .children
+      .filter(filterSponsored) // filter sponsored
+      .slice(0, 5)
+
+    if (!rests) {
+      // no rest found
+      log('no rest found')
+      return false
+    }
+
+    return rests
+  } catch (e) {
+    log('error ', e)
+    return false
+  }
+}
+
+const caller = fin => (url, done) => {
   log('req url: ', url)
   request({
       uri: normalizeSearch(url),
       headers: headers
     },
-    (err, response, body) => done(parseXml(body))
+    (err, response, body) => done(fin(body))
   )
 }
+
+module.exports = ({
+  getRestName: caller(getOneRest),
+  getRestaurants: caller(getRestList)
+})

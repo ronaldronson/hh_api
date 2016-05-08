@@ -1,14 +1,17 @@
+const api = require('./api')
+const urls = require('./url')
+
 module.exports = (params = {}) => {
-  const api = require('./api')
-  const url = require('./url')(params.token || process.env.HH_TOKEN)
+  const url = urls(params.token || process.env.HH_TOKEN)
+  const proxy = method => ({postcode, term}, done) =>
+    method(url.search(postcode, term), resp => {
+      const err = false === resp
+        ? (new Error('Error getting data')) : undefined
+      done(err, false !== resp && resp)
+    })
 
   return {
-    getRestaurantName: ({postcode, term}, done) => {
-      api.loadXml(url.search(postcode, term), resp => {
-        const err = false === resp
-          ? (new Error('Error getting restaurant')) : undefined;
-        done(err, false !== resp && resp)
-      });
-    }
+    getRestaurantName: proxy(api.getRestName),
+    getRestaurants: proxy(api.getRestaurants)
   }
 }
