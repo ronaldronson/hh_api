@@ -51,7 +51,7 @@ function getRests(xml) {
   try {
     const rests = parser(xml).root
       .children[1] // result
-      .children[3] // restaurants
+      .children[2] // restaurants
       .children
       .filter(filterSponsored) // filter sponsored
       .slice(0, 5)
