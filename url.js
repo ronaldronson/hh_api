@@ -1,4 +1,5 @@
 'use strict'
+const cousines = require('./cousines')
 
 const config = require('./config')
 const filter = require('./validation').postcode
@@ -13,5 +14,6 @@ module.exports = (hh_token) => ({
     config.domain + '/api/iphone-'
       + hh_token + '/search/'
       + normilizePostcode(postcode)
-      + '/All/0-10/?q=' + term
+      + '/' + (cousines(term) || 'All')
+      + '/0-10/?q=' + term
 })
