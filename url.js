@@ -15,5 +15,5 @@ module.exports = (hh_token) => ({
       + hh_token + '/search/'
       + normilizePostcode(postcode)
       + '/' + (cousines(term) || 'All')
-      + '/0-10/?q=' + term
+      + '/0-10/?q=' + encodeURIComponent(term)
 })
